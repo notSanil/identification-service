@@ -19,7 +19,7 @@ cost of slightly slower updates.
 To run the backend you will need java, maven, and docker.
 ### Clone
 ```
-git clone <url>
+git clone https://github.com/notSanil/identification-service
 ```
 ### Open the project
 Opening the project in intellij is recommended as you can quickly setup the project.
@@ -37,3 +37,4 @@ or alternatively navigate to the project directory and run
 ```cmd
 mvn spring-boot:run
 ```
+Upon running the project, the contact schema will be created, along with a couple rows of data.
