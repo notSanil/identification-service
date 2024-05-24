@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name="contact")
+@Table(name="contact", schema = "public")
 @SQLDelete(sql="UPDATE contact SET deleted_at=current_timestamp where id=?")
 @SQLRestriction("deleted_at is null")
 public class Contact {
@@ -31,6 +31,7 @@ public class Contact {
     @JoinColumn(name="linked_id")
     private Contact linkedId;
 
+    @Column(name="link_precedence", nullable = false)
     @Enumerated(EnumType.STRING)
     private LinkPrecedence linkPrecedence = LinkPrecedence.Primary;
 
