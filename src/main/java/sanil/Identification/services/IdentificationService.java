@@ -128,4 +128,8 @@ public class IdentificationService {
 
         return findDetailsFromContact(contacts.get(0));
     }
+
+    public void deleteAll() {
+        contactRepository.deleteAll();
+    }
 }
