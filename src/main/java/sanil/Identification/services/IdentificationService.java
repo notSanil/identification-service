@@ -20,17 +20,21 @@ public class IdentificationService {
     private ContactRepository contactRepository;
 
     public IdentificationResponseDto identify(IdentificationRequestDto identificationRequestDto) {
+        //Step 1: Check if record already exists with the same details
         Optional<Contact> contact = contactRepository.findByPhoneNumberAndEmail(identificationRequestDto.getPhoneNumber(), identificationRequestDto.getEmail());
         if (contact.isPresent()) {
             return findDetailsFromContact(contact.get());
         }
 
+        //Step 2: It doesn't so try to find the primary contact
         List<Contact> idByPhone = contactRepository.findByPhoneNumber(identificationRequestDto.getPhoneNumber());
         List<Contact> idByEmail = contactRepository.findByEmail(identificationRequestDto.getEmail());
 
         if (idByPhone.isEmpty() && idByEmail.isEmpty()) {
+            //Step 3a: No primary, create new
             return createNewContact(identificationRequestDto, null);
         } else if (idByPhone.isEmpty() || idByEmail.isEmpty()) {
+            //Step 3b: Primary found, add this contact to the tree
             Contact primaryContact;
             if (!idByPhone.isEmpty()) {
                 primaryContact = getPrimaryContact(idByPhone.get(0));
@@ -39,6 +43,7 @@ public class IdentificationService {
             }
             return createNewContact(identificationRequestDto, primaryContact);
         } else {
+            //Step 3c: Two primaries found
             Contact phonePrimaryContact = getPrimaryContact(idByPhone.get(0));
             Contact emailPrimaryContact = getPrimaryContact(idByEmail.get(0));
 
