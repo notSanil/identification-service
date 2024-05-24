@@ -37,7 +37,6 @@ public class IdentificationService {
             } else {
                 primaryContact = getPrimaryContact(idByEmail.get(0));
             }
-
             return createNewContact(identificationRequestDto, primaryContact);
         } else {
             Contact phonePrimaryContact = getPrimaryContact(idByPhone.get(0));
@@ -64,18 +63,18 @@ public class IdentificationService {
     }
 
     private IdentificationResponseDto findDetailsFromContact(Contact contact) {
-        Integer id = contact.getLinkPrecedence() == LinkPrecedence.Primary ? contact.getId() : contact.getLinkedId().getId();
+        Integer primaryId = getPrimaryContact(contact).getId();
         IdentificationResponseDto.Contact.ContactBuilder builder = IdentificationResponseDto.Contact.builder();
-        builder.primaryContactId(id);
+        builder.primaryContactId(primaryId);
 
-        Contact primaryContact = contactRepository.findById(id).get();
+        Contact primaryContact = contactRepository.findById(primaryId).get();
         List<String> emails = new ArrayList<>();
         emails.add(primaryContact.getEmail());
 
         List<String> phoneNumbers = new ArrayList<>();
         phoneNumbers.add(primaryContact.getPhoneNumber());
 
-        List<Contact> secondaryContacts = contactRepository.findByLinkedId(id);
+        List<Contact> secondaryContacts = contactRepository.findByLinkedId(primaryId);
         builder.secondaryContactIds(secondaryContacts.stream().map(Contact::getId).toList());
         phoneNumbers.addAll(secondaryContacts.stream().map(Contact::getPhoneNumber).toList());
         emails.addAll(secondaryContacts.stream().map(Contact::getEmail).toList());
@@ -105,5 +104,23 @@ public class IdentificationService {
         contactRepository.saveAll(newContactLinks);
 
         return findDetailsFromContact(olderContact);
+    }
+
+    public IdentificationResponseDto identifyWithEmail(IdentificationRequestDto identificationRequestDto) {
+        List<Contact> contacts = contactRepository.findByEmail(identificationRequestDto.getEmail());
+        if (contacts.isEmpty()) {
+            return createNewContact(identificationRequestDto, null);
+        }
+
+        return findDetailsFromContact(contacts.get(0));
+    }
+
+    public IdentificationResponseDto identifyWithPhone(IdentificationRequestDto identificationRequestDto) {
+        List<Contact> contacts = contactRepository.findByPhoneNumber(identificationRequestDto.getPhoneNumber());
+        if (contacts.isEmpty()) {
+            return createNewContact(identificationRequestDto, null);
+        }
+
+        return findDetailsFromContact(contacts.get(0));
     }
 }
