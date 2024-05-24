@@ -28,7 +28,7 @@ INSERT INTO public.contact VALUES (2, '2024-05-24 17:28:04.929', NULL, 'mcfly@hi
 -- Name: contact_id_seq; Type: SEQUENCE SET; Schema: public; Owner: identification
 --
 
-SELECT pg_catalog.setval('public.contact_id_seq', 2, true);
+SELECT pg_catalog.setval('public.contact_id_seq', (SELECT max(id) FROM public.contact), true);
 
 
 --

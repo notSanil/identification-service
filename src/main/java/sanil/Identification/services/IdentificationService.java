@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class IdentificationService {
-
     @Autowired
     private ContactRepository contactRepository;
+
     public IdentificationResponseDto identify(IdentificationRequestDto identificationRequestDto) {
         Optional<Contact> contact = contactRepository.findByPhoneNumberAndEmail(identificationRequestDto.getPhoneNumber(), identificationRequestDto.getEmail());
         if (contact.isPresent()) {
@@ -46,13 +46,9 @@ public class IdentificationService {
             if (Objects.equals(emailPrimaryContact.getId(), phonePrimaryContact.getId())) {
                 return findDetailsFromContact(emailPrimaryContact);
             } else {
-
+                return mergeContacts(phonePrimaryContact, emailPrimaryContact);
             }
         }
-
-        System.out.print(idByPhone);
-        System.out.print(idByEmail);
-        return null;
     }
 
     private IdentificationResponseDto createNewContact(IdentificationRequestDto identificationRequestDto, Contact primary) {
@@ -64,11 +60,7 @@ public class IdentificationService {
                 .build();
 
         Contact repositoryContact = contactRepository.save(contact);
-        return new IdentificationResponseDto(IdentificationResponseDto.Contact.builder()
-                .primaryContactId(repositoryContact.getId())
-                .phoneNumbers(List.of(repositoryContact.getPhoneNumber()))
-                .emails(List.of(repositoryContact.getEmail()))
-                .build());
+        return findDetailsFromContact(repositoryContact);
     }
 
     private IdentificationResponseDto findDetailsFromContact(Contact contact) {
@@ -96,5 +88,22 @@ public class IdentificationService {
 
     private Contact getPrimaryContact(Contact contact) {
         return contact.getLinkPrecedence() == LinkPrecedence.Primary ? contact : contact.getLinkedId();
+    }
+
+    private IdentificationResponseDto mergeContacts(Contact contact1, Contact contact2) {
+        Contact newerContact = contact1.getCreatedAt().isAfter(contact2.getCreatedAt()) ? contact1 : contact2;
+        Contact olderContact = contact1.getCreatedAt().isAfter(contact2.getCreatedAt()) ? contact2 : contact1;
+
+        List<Contact> newContactLinks = contactRepository.findByLinkedId(newerContact.getId());
+        newContactLinks.add(newerContact);
+
+        newContactLinks.forEach(contact -> {
+            contact.setLinkedId(olderContact);
+            contact.setLinkPrecedence(LinkPrecedence.Secondary);
+        });
+
+        contactRepository.saveAll(newContactLinks);
+
+        return findDetailsFromContact(olderContact);
     }
 }
