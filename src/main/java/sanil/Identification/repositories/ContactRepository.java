@@ -2,7 +2,6 @@ package sanil.Identification.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import sanil.Identification.entities.Contact;
 
 import java.util.List;
