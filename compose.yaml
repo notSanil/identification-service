@@ -1,0 +1,10 @@
+services:
+  #Taken from https://github.com/docker/awesome-compose/blob/master/postgresql-pgadmin/compose.yaml
+  database:
+    container_name: database
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=identification
+      - POSTGRES_PASSWORD=abc123
+    ports:
+      - "5432:5432"
