@@ -21,11 +21,11 @@ public class IdentificationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else if (identificationRequestDto.getEmail() == null || identificationRequestDto.getPhoneNumber() == null) {
             if (identificationRequestDto.getEmail() != null)
-                return ResponseEntity.status(HttpStatus.ACCEPTED).body(identificationService.identifyWithEmail(identificationRequestDto));
+                return ResponseEntity.status(HttpStatus.OK).body(identificationService.identifyWithEmail(identificationRequestDto));
             else
-                return ResponseEntity.status(HttpStatus.ACCEPTED).body(identificationService.identifyWithPhone(identificationRequestDto));
+                return ResponseEntity.status(HttpStatus.OK).body(identificationService.identifyWithPhone(identificationRequestDto));
         }
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(identificationService.identify(identificationRequestDto));
+        return ResponseEntity.status(HttpStatus.OK).body(identificationService.identify(identificationRequestDto));
     }
 
     @DeleteMapping("/delete")
